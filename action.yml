@@ -30,10 +30,7 @@ runs:
       id: create-label
       shell: bash
       run: |
-           label_exists=$(curl -s -H "Authorization: token ${{ inputs.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/labels | jq '.[].name' | grep ${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji)
-           if [[ -z $label_exists ]]; then
-              curl -s -H "Authorization: token ${{ inputs.GITHUB_TOKEN }}" -X POST https://api.github.com/repos/${{ github.repository }}/labels -d "{\"name\":\"${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji\",\"color\":\"#223eee\"}"
-           fi
+          gh label list | grep -q ${gitmoji}_gitmoji || gh label create $gitmoji -c '$(openssl rand -hex 3)' -d "PRs with $gitmoji gitmoji"
 
 branding:
     icon: 'check-circle'
