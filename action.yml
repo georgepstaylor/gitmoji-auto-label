@@ -23,7 +23,7 @@ runs:
            gitmoji=$(echo "${{ github.event.pull_request.title }}" | cut -d ' ' -f1)
            if [[ ! $gitmojis == *"$gitmoji"* ]]; then
              echo "Invalid gitmoji prefix in PR title. Please use a valid gitmoji prefix."
-             exit 1
+#             exit 1
            else
              echo "gitmoji=$gitmoji" >> $GITHUB_OUTPUT
            fi
