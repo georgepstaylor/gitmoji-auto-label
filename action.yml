@@ -32,8 +32,14 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
-          gh label list | grep -q ${gitmoji}_gitmoji || gh label create $gitmoji -c '$(openssl rand -hex 3)' -d "PRs with $gitmoji gitmoji"
-
+          gh label list | grep -q ${gitmoji}_gitmoji || gh label create ${gitmoji}_gitmoji -c '$(openssl rand -hex 3)' -d "PRs with $gitmoji gitmoji"
+    - name: Add label to PR
+      id: add-label
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+      run: |
+          gh pr label ${gitmoji}_gitmoji
 branding:
     icon: 'check-circle'
     color: 'green'
