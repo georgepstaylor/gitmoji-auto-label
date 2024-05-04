@@ -7,6 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Enforce gitmoji PR title
-        uses: georgepstaylor/gitmoji-auto-label@${{github.sha}}
+        uses: georgepstaylor/gitmoji-auto-label@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
