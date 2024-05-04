@@ -10,11 +10,17 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
     - name: Get all Gitmojis
       id: gitmojis
       shell: bash
       run: |
            curl -s https://gitmoji.dev/api/gitmojis | jq '.gitmojis[].emoji' > gitmojis.txt
+
     - name: Get gitmoji from PR title
       id: get-gitmoji
       shell: bash
@@ -26,6 +32,7 @@ runs:
            else
              echo "gitmoji=$gitmoji" >> $GITHUB_OUTPUT
            fi
+
     - name: Create label if not exists
       id: create-label
       shell: bash
@@ -33,6 +40,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
           gh label list | grep -q ${gitmoji}_gitmoji || gh label create ${gitmoji}_gitmoji -c '$(openssl rand -hex 3)' -d "PRs with $gitmoji gitmoji"
+
     - name: Add label to PR
       id: add-label
       shell: bash
