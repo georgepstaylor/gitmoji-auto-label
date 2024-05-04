@@ -47,7 +47,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
-          gh pr label ${gitmoji}_gitmoji
+          gh pr edit --add-label ${gitmoji}_gitmoji
 branding:
     icon: 'check-circle'
     color: 'green'
