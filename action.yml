@@ -46,7 +46,7 @@ runs:
           GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
           gh pr checkout ${{ github.event.pull_request.number }}
-          gh pr view --json labels -q '[.labels[] | select(.name | endswith("_gitmoji")) | .name]' | tr -d '"' | while read -r label; do
+          gh pr view --json labels -q '.labels[] | select(.name | endswith("_gitmoji")) | .name' | tr -d '"' | while read -r label; do
             gh pr edit --remove-label $label
           done
     - name: Add label to PR
