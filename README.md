@@ -1,0 +1,2 @@
+# gitmoji-auto-label
+ 
