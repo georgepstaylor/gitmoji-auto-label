@@ -31,11 +31,10 @@ runs:
       id: create-label
       shell: bash
       run: |
-           gitmoji=$(cat $GITHUB_OUTPUT | grep gitmoji | cut -d '=' -f2)
            random_hex_color=$(openssl rand -hex 3)
            label_exists=$(curl -s -H "Authorization : token ${{ inputs.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/labels | jq '.[].name' | grep ${gitmoji}_gitmoji)
            if [[ -z $label_exists ]]; then
-              curl -s -H "Authorization: token ${{ inputs.GITHUB_TOKEN }}" -X POST https://api.github.com/repos/${{ github.repository }}/labels -d "{\"name\":\"${gitmoji}_gitmoji\",\"color\":\"$random_hex_color\"}"
+              curl -s -H "Authorization: token ${{ inputs.GITHUB_TOKEN }}" -X POST https://api.github.com/repos/${{ github.repository }}/labels -d "{\"name\":\"${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji\",\"color\":\"$random_hex_color\"}"
            fi
 
 branding:
