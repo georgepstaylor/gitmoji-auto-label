@@ -5,8 +5,10 @@ on:
 jobs:
   create-gitmoji-label:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
-      - name: Enforce gitmoji PR title
-        uses: georgepstaylor/gitmoji-auto-label@${{github.sha}}
+      - name: Create gitmoji label
+        uses: georgepstaylor/gitmoji-auto-label@simplify-gitmoji-step-output
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
