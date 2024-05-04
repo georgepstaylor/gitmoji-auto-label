@@ -1,0 +1,43 @@
+---
+name: Auto create gitmoji labels
+description: This action automatically creates gitmoji labels JIT
+
+inputs:
+    GITHUB_TOKEN:
+        description: 'GitHub token'
+        required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get all Gitmoji's
+      id: gitmojis
+      shell: bash
+      run: |
+           curl -s https://gitmoji.dev/api/gitmojis | jq '.gitmojis[].emoji' > gitmojis.txt
+    - name: Get gitmoji from PR title
+      id: get-gitmoji
+      shell: bash
+      run: |
+           gitmojis=$(cat gitmojis.txt)
+           gitmoji=$(echo "${{ github.event.pull_request.title }}" | cut -d ' ' -f1)
+           if [[ ! $gitmojis == *"$gitmoji"* ]]; then
+             echo "Invalid gitmoji prefix in PR title. Please use a valid gitmoji prefix."
+             exit 1
+           else
+             echo "gitmoji=$gitmoji" >> $GITHUB_OUTPUT
+           fi
+    - name: Create label if not exists
+      id: create-label
+      shell: bash
+      run: |
+           gitmoji=$(cat $GITHUB_OUTPUT | grep gitmoji | cut -d '=' -f2)
+           random_hex_color=$(openssl rand -hex 3)
+           label_exists=$(curl -s -H "Authorization : token ${{ inputs.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/labels | jq '.[].name' | grep ${gitmoji}_gitmoji)
+           if [[ -z $label_exists ]]; then
+              curl -s -H "Authorization: token ${{ inputs.GITHUB_TOKEN }}" -X POST https://api.github.com/repos/${{ github.repository }}/labels -d "{\"name\":\"${gitmoji}_gitmoji\",\"color\":\"$random_hex_color\"}"
+           fi
+
+branding:
+    icon: 'check-circle'
+    color: 'green'

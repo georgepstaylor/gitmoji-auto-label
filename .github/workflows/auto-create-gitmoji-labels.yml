@@ -1,0 +1,12 @@
+name: Create gitmoji label
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+jobs:
+  create-gitmoji-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce gitmoji PR title
+        uses: georgepstaylor/gitmoji-auto-label@${{github.sha}}
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
