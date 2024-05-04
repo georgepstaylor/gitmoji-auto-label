@@ -6,7 +6,7 @@ jobs:
   create-gitmoji-label:
     runs-on: ubuntu-latest
     permissions:
-      issues: write
+      pull-requests: write
     steps:
       - name: Create gitmoji label
         uses: georgepstaylor/gitmoji-auto-label@simplify-gitmoji-step-output
