@@ -25,7 +25,7 @@ runs:
       run: |
            gitmojis=$(cat gitmojis.txt)
            gitmoji=$(echo "${{ github.event.pull_request.title }}" | cut -d ' ' -f1)
-            echo "gitmojis=$gitmojis"
+            echo "$gitmoji"
            if [[ ! $gitmojis == *"$gitmoji"* ]]; then
              echo "Invalid gitmoji prefix in PR title. Please use a valid gitmoji prefix."
            else
@@ -38,6 +38,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
+          echo ${{steps.outputs.get-gitmoji.outputs.gitmoji}}
           gh label list | grep -q ${{steps.outputs.get-gitmoji.outputs.gitmoji}}_gitmoji || gh label create ${{steps.outputs.get-gitmoji.outputs.gitmoji}}_gitmoji -c '$(openssl rand -hex 3)' -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji}}_gitmoji"
 
     - name: remove labels ending in _gitmoji from PR
