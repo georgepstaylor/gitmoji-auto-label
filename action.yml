@@ -29,6 +29,8 @@ runs:
     - name: Create label if not exists
       id: create-label
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
           gh label list | grep -q ${gitmoji}_gitmoji || gh label create $gitmoji -c '$(openssl rand -hex 3)' -d "PRs with $gitmoji gitmoji"
 
