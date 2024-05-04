@@ -11,6 +11,8 @@ on:
 jobs:
   create-gitmoji-label:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Enforce gitmoji PR title
         uses: georgepstaylor/gitmoji-auto-label@v0.0.1
