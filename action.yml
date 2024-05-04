@@ -10,7 +10,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Get all Gitmoji's
+    - name: Get all Gitmojis
       id: gitmojis
       shell: bash
       run: |
