@@ -98,5 +98,4 @@ changelog:
     - title: Other Changes
       labels:
         - "*"
-
 ```
