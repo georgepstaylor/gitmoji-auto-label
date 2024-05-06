@@ -38,7 +38,11 @@ runs:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
           echo ${{steps.get-gitmoji.outputs.gitmoji}}
+<<<<<<< Updated upstream
           gh label list | grep -q ${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji || gh label create ${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji -c '$(openssl rand -hex 3)' -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji}}_gitmoji"
+=======
+          gh label list | grep -q ${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji || gh label create ${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji}}_gitmoji"
+>>>>>>> Stashed changes
 
     - name: remove labels ending in _gitmoji from PR
       id: remove-label
