@@ -11,6 +11,6 @@ jobs:
       repository-projects: read
     steps:
       - name: Create gitmoji label
-        uses: georgepstaylor/gitmoji-auto-label@simplify-gitmoji-step-output
+        uses: georgepstaylor/gitmoji-auto-label@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
