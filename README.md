@@ -16,12 +16,17 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      contents: read
+      repository-projects: read
     steps:
       - name: Enforce gitmoji PR title
         uses: georgepstaylor/gitmoji-auto-label@v0.0.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+### Permissions
+The token requires the `pull-request: write` (to add a label to a PR) and if you are running this in a github-organisation, `repository-projects: read` too. Please see the following reference for the latter: https://github.com/cli/cli/discussions/5307
 
 Using the above example verbatim, you can use the job title `gitmoji-pr-title` as a required check.
 
