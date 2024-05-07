@@ -21,6 +21,6 @@ jobs:
         - uses: georgepstaylor/gitmoji-release-action@62b58b26ab728f62aad65eae88a0c2415ffbb6f9
           with:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            release_type: 'patch'
+            release_type: ${{ inputs.release_type }}
             auto_create_tag: true
             title_suffix: '- Release'
