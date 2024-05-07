@@ -3,9 +3,6 @@ name: Create release
 on:
     workflow_dispatch:
         inputs:
-            GITHUB_TOKEN:
-                description: 'GitHub token'
-                required: true
             release_type:
                 description: 'Type of release'
                 required: true
@@ -16,11 +13,10 @@ on:
                     - 'patch'
 
 jobs:
-    create-release:
+    release-job:
         runs-on: ubuntu-latest
         steps:
-        - name: Create Release
-          uses: georgepstaylor/gitmoji-release-action@v0.0.1
+        - uses: georgepstaylor/gitmoji-release-action@v0.0.1
           with:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             release_type: 'patch'
