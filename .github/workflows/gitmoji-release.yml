@@ -1,0 +1,28 @@
+name: Create release
+
+on:
+    workflow_dispatch:
+        inputs:
+            GITHUB_TOKEN:
+                description: 'GitHub token'
+                required: true
+            release_type:
+                description: 'Type of release'
+                required: true
+                type: choice
+                options:
+                    - 'major'
+                    - 'minor'
+                    - 'patch'
+
+jobs:
+    create-release:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Create Release
+          uses: georgepstaylor/gitmoji-release-action@v0.0.1
+          with:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            release_type: 'patch'
+            auto_create_tag: true
+            title_suffix: '- Release'         
