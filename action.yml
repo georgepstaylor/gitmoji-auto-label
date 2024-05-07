@@ -26,7 +26,8 @@ runs:
            gitmojis=$(cat gitmojis.txt)
            gitmoji=$(echo "${{ github.event.pull_request.title }}" | cut -d ' ' -f1)
            if [[ ! $gitmojis == *"$gitmoji"* ]]; then
-             echo "Invalid gitmoji prefix in PR title. Please use a valid gitmoji prefix."
+             echo "Cannot create label as gitmoji not prefixed in PR title"
+             exit 1
            else
              echo "gitmoji=$gitmoji" >> $GITHUB_OUTPUT
            fi
