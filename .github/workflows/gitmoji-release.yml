@@ -16,7 +16,7 @@ jobs:
     release-job:
         runs-on: ubuntu-latest
         steps:
-        - uses: georgepstaylor/gitmoji-release-action@425eed91df83ba575541fbe78c9a15b2ef1c8b2d
+        - uses: georgepstaylor/gitmoji-release-action@7046062e3c940c67bb1859449b79643ebb054f0b
           with:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             release_type: 'patch'
