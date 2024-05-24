@@ -39,7 +39,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
           echo ${{steps.get-gitmoji.outputs.gitmoji}}
-          gh label list | grep -Pq ${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji || gh label create ${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji}}_gitmoji"
+          gh label list --json name | jq -er '.[] | select(.name | test("${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji")) | .name' || gh label create ${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji}}_gitmoji" --force
 
     - name: remove labels ending in _gitmoji from PR
       id: remove-label
