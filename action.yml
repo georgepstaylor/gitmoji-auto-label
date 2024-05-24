@@ -29,7 +29,7 @@ runs:
              echo "Cannot create label as gitmoji not prefixed in PR title"
              exit 1
            else
-             gitmoji_clean=$(echo $gitmoji | tr -d '[:space:]' | tr -d '[:punct:] | tr -d '\xEF\xB8\x8F')
+             gitmoji_clean=$(echo $gitmoji | tr -d '[:space:]' | tr -d '[:punct:]'' | tr -d '\xEF\xB8\x8F')
              echo "gitmoji=$gitmoji_clean" >> $GITHUB_OUTPUT
            fi
 
