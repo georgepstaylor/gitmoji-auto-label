@@ -29,14 +29,8 @@ runs:
              echo "Cannot create label as gitmoji not prefixed in PR title"
              exit 1
            else
-              # find gitmoji from title in gitmojis.json
-              gitmoji_no_variance=$(echo $gitmoji | tr -d '[:space:]' | tr -d '[:punct:]' | perl -CSD -pe 's/\N{U+FE0F}//g')
-        
-              entity=$(perl -Mutf8 -CS -MEncode -e 'printf "&#x%X;\n", ord(Encode::decode("utf8", $ARGV[0]))' "gitmoji_no_variance")
-        
-              # find emoji from entity in gitmojis.json
-              gitmoji_clean=$(jq -r '.gitmojis[] | select(.emoji == "'$entity'") | .emoji' gitmojis.json)
-              echo "gitmoji_clean=$gitmoji_clean" >> $GITHUB_OUTPUT
+             gitmoji_clean=$(echo $gitmoji | tr -d '[:space:]' | tr -d '[:punct:]' | perl -CSD -pe 's/\N{U+FE0F}//g')
+             echo "gitmoji=$gitmoji_clean" >> $GITHUB_OUTPUT
            fi
 
     - name: Create label if not exists
