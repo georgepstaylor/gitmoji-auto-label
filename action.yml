@@ -17,20 +17,28 @@ runs:
       id: gitmojis
       shell: bash
       run: |
-           curl -s https://gitmoji.dev/api/gitmojis | jq '.gitmojis[].emoji' > gitmojis.txt
+           curl -s https://gitmoji.dev/api/gitmojis > gitmojis.json
 
     - name: Get gitmoji from PR title
       id: get-gitmoji
       shell: bash
       run: |
-           gitmojis=$(cat gitmojis.txt)
+           gitmojis=$(jq '.gitmojis[].emoji' gitmojis.json)
            gitmoji=$(echo "${{ github.event.pull_request.title }}" | cut -d ' ' -f1)
            if [[ ! $gitmojis == *"$gitmoji"* ]]; then
              echo "Cannot create label as gitmoji not prefixed in PR title"
              exit 1
            else
-             gitmoji_clean=$(echo $gitmoji | tr -d '[:space:]' | tr -d '[:punct:]' | perl -CSD -pe 's/\N{U+FE0F}//g')
-             echo "gitmoji=$gitmoji_clean" >> $GITHUB_OUTPUT
+              # find gitmoji from title in gitmojis.json
+              gitmoji_no_variance=$(echo $gitmoji | tr -d '[:space:]' | tr -d '[:punct:]' | perl -CSD -pe 's/\N{U+FE0F}//g')
+        
+              entity=$(perl -Mutf8 -CS -MEncode -e 'printf "&#x%X;\n", ord(Encode::decode("utf8", $ARGV[0]))' "gitmoji_no_variance")
+        
+              # find emoji from entity in gitmojis.json
+              gitmoji_clean=$(jq -r '.gitmojis[] | select(.emoji == "'$entity'") | .emoji' gitmojis.json)
+              echo "gitmoji_clean=$gitmoji_clean" >> $GITHUB_OUTPUT
+          fi
+        
            fi
 
     - name: Create label if not exists
@@ -40,7 +48,8 @@ runs:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
           echo ${{steps.get-gitmoji.outputs.gitmoji}}
-          gh label list --json name | jq -er '.[] | select(.name | test("${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji")) | .name' || gh label create ${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji}}_gitmoji" --force
+                
+          gh label list --json name | jq -er '.[] | select(.name | test("${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji")) | .name' || gh label create ${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji_clean}}_gitmoji" --force
 
     - name: remove labels ending in _gitmoji from PR
       id: remove-label
@@ -59,7 +68,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
           gh pr checkout ${{ github.event.pull_request.number }}
-          gh pr edit --add-label ${{steps.get-gitmoji.outputs.gitmoji}}_gitmoji
+          gh pr edit --add-label ${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji
 
 branding:
     icon: 'check-circle'
