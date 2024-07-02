@@ -43,12 +43,9 @@ runs:
       run: |
           echo ${{steps.get-gitmoji.outputs.gitmoji}}
         
-        # try to create label with gitmoji_clean and if it fails create with gitmoji_clean_nv
+          # try to create label with gitmoji_clean and if it fails create with gitmoji_clean_nv
         
-        (gh label list --json name | jq -er '.[] | select(.name | test("${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji")) | .name' || gh label create ${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji_clean}}_gitmoji" --force) || (gh label create ${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji_clean_nv}}_gitmoji" --force)
-        
-        gh label list --json name | jq -er '.[] | select(.name | test("${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji")) | .name' || gh label create ${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji_clean}}_gitmoji" --force
-        
+          (gh label list --json name | jq -er '.[] | select(.name | test("${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji")) | .name' || gh label create ${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji_clean}}_gitmoji" --force) || (gh label create ${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji_clean_nv}}_gitmoji" --force)        
 
     - name: remove labels ending in _gitmoji from PR
       id: remove-label
@@ -58,7 +55,7 @@ runs:
       run: |
           gh pr checkout ${{ github.event.pull_request.number }}
           gh pr view --json labels -q '.labels[] | select(.name | endswith("_gitmoji")) | .name' | tr -d '"' | while read -r label; do
-            gh pr edit --remove-label $label
+          gh pr edit --remove-label $label
           done
     - name: Add label to PR
       id: add-label
