@@ -31,8 +31,8 @@ runs:
            else
              gitmoji_clean=$(echo $gitmoji | tr -d '[:space:]' | tr -d '[:punct:]')
              gitmoji_clean_nv=$(echo $gitmoji | tr -d '[:space:]' | tr -d '[:punct:]' | perl -CSD -pe 's/\N{U+FE0F}//g')
-             echo "gitmoji_clean=gitmoji_clean" >> $GITHUB_OUTPUT
-            echo "gitmoji_clean_nv=gitmoji_clean_nv" >> $GITHUB_OUTPUT
+             echo "gitmoji_clean=$gitmoji_clean" >> $GITHUB_OUTPUT
+             echo "gitmoji_clean_nv=$gitmoji_clean_nv" >> $GITHUB_OUTPUT
            fi
 
     - name: Create label if not exists
