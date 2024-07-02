@@ -37,7 +37,7 @@ runs:
               # find emoji from entity in gitmojis.json
               gitmoji_clean=$(jq -r '.gitmojis[] | select(.emoji == "'$entity'") | .emoji' gitmojis.json)
               echo "gitmoji_clean=$gitmoji_clean" >> $GITHUB_OUTPUT
-          fi
+           fi
 
     - name: Create label if not exists
       id: create-label
