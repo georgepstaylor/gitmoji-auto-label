@@ -10,6 +10,6 @@ jobs:
       repository-projects: read
     steps:
       - name: Create gitmoji label
-        uses: georgepstaylor/gitmoji-auto-label@main
+        uses: georgepstaylor/gitmoji-auto-label@feature/smarter-relabeling
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
