@@ -6,6 +6,14 @@ inputs:
     GITHUB_TOKEN:
         description: 'GitHub token'
         required: true
+    suffix:
+      description: 'Suffix to append to the gitmoji label'
+      required: true
+      default: '_gitmoji'
+    cleanup_other_gitmoji_labels:
+      description: 'Remove gitmoji labels with different suffixes from this PR'
+      required: false
+      default: 'false'
 
 runs:
   using: "composite"
@@ -41,11 +49,12 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
+          suffix="${{ inputs.suffix }}"
           echo ${{steps.get-gitmoji.outputs.gitmoji}}
         
           # try to create label with gitmoji_clean and if it fails create with gitmoji_clean_nv
         
-          (gh label list --json name | jq -er '.[] | select(.name | test("${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji")) | .name' || gh label create ${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji_clean}}_gitmoji" --force) || (gh label create ${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}_gitmoji -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.outputs.get-gitmoji.outputs.gitmoji_clean_nv}}_gitmoji" --force)
+          (gh label list --json name | jq -er --arg gitmoji "${{steps.get-gitmoji.outputs.gitmoji_clean}}" --arg suffix "$suffix" '.[] | select(.name | test("\($gitmoji)$suffix")) | .name' || gh label create "${{steps.get-gitmoji.outputs.gitmoji_clean}}$suffix" -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.get-gitmoji.outputs.gitmoji_clean}}$suffix" --force) || (gh label create "${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}$suffix" -c "$(openssl rand -hex 3)" -d "PRs with ${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}$suffix" --force)
     
     - name: Check if PR already has the correct label
       id: check-existing-label
@@ -53,30 +62,59 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
+          suffix="${{ inputs.suffix }}"
           gh pr checkout ${{ github.event.pull_request.number }}
           # Check for primary gitmoji label
-          if gh pr view --json labels -q '.labels[].name' | grep -q "${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji"; then
-            echo "PR already has the correct gitmoji label (${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji)"
+          if gh pr view --json labels -q '.labels[].name' | grep -q "${{steps.get-gitmoji.outputs.gitmoji_clean}}$suffix"; then
+            echo "PR already has the correct gitmoji label (${{steps.get-gitmoji.outputs.gitmoji_clean}}$suffix)"
             echo "has_correct_label=true" >> $GITHUB_OUTPUT
           # Check for alternative gitmoji label (no variation selectors)
-          elif gh pr view --json labels -q '.labels[].name' | grep -q "${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}_gitmoji"; then
-            echo "PR already has the correct gitmoji label (${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}_gitmoji)"
+          elif gh pr view --json labels -q '.labels[].name' | grep -q "${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}$suffix"; then
+            echo "PR already has the correct gitmoji label (${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}$suffix)"
             echo "has_correct_label=true" >> $GITHUB_OUTPUT
           else
             echo "PR does not have the correct gitmoji label"
             echo "has_correct_label=false" >> $GITHUB_OUTPUT
           fi
 
-    - name: remove labels ending in _gitmoji from PR
+    - name: Clean up gitmoji labels with different suffixes
+      id: cleanup-old-suffix
+      if: inputs.cleanup_other_gitmoji_labels == 'true'
+      shell: bash
+      env:
+          GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+      run: |
+          suffix="${{ inputs.suffix }}"
+          current_gitmoji_clean="${{steps.get-gitmoji.outputs.gitmoji_clean}}"
+          current_gitmoji_clean_nv="${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}"
+          gh pr checkout ${{ github.event.pull_request.number }}
+          echo "Cleaning up gitmoji labels with different suffixes..."
+          gh pr view --json labels -q '.labels[].name' | tr -d '"' | while read -r label; do
+            # Check if label matches current gitmoji but doesn't have current suffix
+            if [[ "$label" == "$current_gitmoji_clean"* && "$label" != "$current_gitmoji_clean$suffix" ]] || 
+               [[ "$label" == "$current_gitmoji_clean_nv"* && "$label" != "$current_gitmoji_clean_nv$suffix" ]]; then
+              echo "Removing outdated gitmoji label: $label"
+              gh pr edit --remove-label "$label"
+            fi
+          done
+
+    - name: remove labels ending in current suffix from PR
       id: remove-label
       if: steps.check-existing-label.outputs.has_correct_label != 'true'
       shell: bash
       env:
           GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
+          suffix="${{ inputs.suffix }}"
           gh pr checkout ${{ github.event.pull_request.number }}
-          gh pr view --json labels -q '.labels[] | select(.name | endswith("_gitmoji")) | .name' | tr -d '"' | while read -r label; do
-          gh pr edit --remove-label $label
+          # Get all labels ending with suffix and store in array
+          mapfile -t labels_to_remove < <(gh pr view --json labels -q --arg suffix "$suffix" '.labels[] | select(.name | endswith($suffix)) | .name')
+          # Remove each label
+          for label in "${labels_to_remove[@]}"; do
+            if [ -n "$label" ]; then
+              echo "Removing label: $label"
+              gh pr edit --remove-label "$label" || true
+            fi
           done
     - name: Add label to PR
       id: add-label
@@ -85,8 +123,9 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
       run: |
+          suffix="${{ inputs.suffix }}"
           gh pr checkout ${{ github.event.pull_request.number }}
-          gh pr edit --add-label ${{steps.get-gitmoji.outputs.gitmoji_clean}}_gitmoji || gh pr edit --add-label ${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}_gitmoji
+          gh pr edit --add-label "${{steps.get-gitmoji.outputs.gitmoji_clean}}$suffix" || gh pr edit --add-label "${{steps.get-gitmoji.outputs.gitmoji_clean_nv}}$suffix"
 
 branding:
     icon: 'check-circle'
