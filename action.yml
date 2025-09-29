@@ -107,8 +107,14 @@ runs:
       run: |
           suffix="${{ inputs.suffix }}"
           gh pr checkout ${{ github.event.pull_request.number }}
-          gh pr view --json labels -q --arg suffix "$suffix" '.labels[] | select(.name | endswith($suffix)) | .name' | tr -d '"' | while read -r label; do
-          gh pr edit --remove-label $label
+          # Get all labels ending with suffix and store in array
+          mapfile -t labels_to_remove < <(gh pr view --json labels -q --arg suffix "$suffix" '.labels[] | select(.name | endswith($suffix)) | .name')
+          # Remove each label
+          for label in "${labels_to_remove[@]}"; do
+            if [ -n "$label" ]; then
+              echo "Removing label: $label"
+              gh pr edit --remove-label "$label" || true
+            fi
           done
     - name: Add label to PR
       id: add-label

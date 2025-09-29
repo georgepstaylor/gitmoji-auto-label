@@ -9,8 +9,11 @@ jobs:
       pull-requests: write
       repository-projects: read
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Create gitmoji label
-        uses: georgepstaylor/gitmoji-auto-label@feature/smarter-relabeling
+        uses: ./
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           suffix: "^"
