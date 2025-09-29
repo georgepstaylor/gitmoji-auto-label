@@ -13,3 +13,5 @@ jobs:
         uses: georgepstaylor/gitmoji-auto-label@feature/smarter-relabeling
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          suffix: "^"
+          cleanup_other_gitmoji_labels: true

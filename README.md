@@ -2,10 +2,11 @@
 
 A simple action to automatically label PRs based on the gitmoji used in the title.
 
-Note: GitHub _requires_ more than just the gitmoji in the title, so this action will create the labels
+Note: GitHub _requires_ more than just the gitmoji in the label, so this action will create the labels
 as `<gitmoji>_gitmoji` for example `✨_gitmoji` or `🐛_gitmoji` etc.
 
 ## Usage
+
 ```yaml
 name: Create gitmoji label
 on:
@@ -26,6 +27,7 @@ jobs:
 ```
 
 ### Permissions
+
 The token requires the `pull-request: write` (to add a label to a PR) and if you are running this in a github-organisation, `repository-projects: read` too. Please see the following reference for the latter: https://github.com/cli/cli/discussions/5307
 
 Using the above example verbatim, you can use the job title `gitmoji-pr-title` as a required check.
@@ -38,7 +40,8 @@ Optionally you can use this action in conjunction with [georgepstaylor/gitmoji-r
 
 Likewise, you can create releases using the GitHub UI and the release notes will be generated based on the gitmoji labels if you use the following configuration:
 
-See: 
+See:
+
 - https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes
 - https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
 
